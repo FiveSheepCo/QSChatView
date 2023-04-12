@@ -41,16 +41,10 @@ struct ChatTextField: View {
     }
     
     @ViewBuilder var sendButton: some View {
-        Circle()
-            .frame(width: 32, height: 32)
-            .background(.thinMaterial)
-            .clipShape(Circle())
-            .overlay(alignment: .center) {
-                Image(systemName: "paperplane.fill")
-                    .rotationEffect(.degrees(45))
-                    .font(.system(size: 20))
-                    .offset(x: -2)
-            }
+        Image(systemName: "paperplane.circle.fill")
+            .rotationEffect(.degrees(45))
+            .font(.system(size: 26))
+            .foregroundColor(.accentColor)
             .contentShape(Rectangle())
     }
     

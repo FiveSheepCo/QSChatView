@@ -8,25 +8,32 @@
 import SwiftUI
 
 struct ChatBubble: View {
-    var participant: ChatParticipant
-    var display: ChatBubbleDisplay
+    var message: ChatMessage
+    
+    init(_ message: ChatMessage) {
+        self.message = message
+    }
     
     /// Raw chat content based on ``ChatBubbleDisplay``.
     @ViewBuilder private var rawContent: some View {
-        switch display {
-        case .text(let content, let timestamp):
+        switch message.content {
+        case .text(let content):
             HStack(alignment: .center, spacing: 15) {
                 Text(content)
-                if let timestamp = timestamp {
-                    VStack {
-                        Spacer()
-                        Text(timestamp.formatted(date: .omitted, time: .shortened))
-                            .font(.footnote)
-                            .opacity(0.5)
-                    }
+                VStack {
+                    Spacer()
+                    Text(message.displayTimeStamp)
+                        .font(.footnote)
+                        .opacity(0.5)
                 }
             }.fixedSize(horizontal: false, vertical: true)
-        case .loading:
+        case .image(let image):
+            VStack {
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+        case .typingIndicator:
             HStack(alignment: .center, spacing: 15) {
                 TypingIndicator()
             }
@@ -38,7 +45,7 @@ struct ChatBubble: View {
     /// This adds avatars, padding, backgrounds, etc.
     @ViewBuilder private var styledContent: some View {
         HStack(alignment: .bottom, spacing: 10) {
-            if let avatar = participant.avatar, participant.role == .chattee {
+            if let avatar = message.participant.avatar, message.participant.role == .chattee {
                 avatar
                     .view
                     .frame(width: 24, height: 24)
@@ -46,7 +53,7 @@ struct ChatBubble: View {
                     .offset(y: -2.5) // visual balance
             }
             rawContent
-                .padding(.horizontal, 20)
+                .padding(.horizontal, 15)
                 .padding(.vertical, 10)
                 .background(.thinMaterial)
                 .cornerRadius(10)
@@ -58,7 +65,7 @@ struct ChatBubble: View {
     /// This positions the chat bubble on the horizontal axis.
     @ViewBuilder private var positionedContent: some View {
         HStack(alignment: .center, spacing: 0) {
-            if (participant.role.showOnLeftSide) {
+            if (message.participant.role.showOnLeftSide) {
                 styledContent
                 Spacer()
             } else {
@@ -96,22 +103,24 @@ struct ChatBubble_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             ChatBubble(
-                participant: other,
-                display: .text(
-                    "Hi",
-                    time: Date(timeIntervalSince1970: 1680307200)
+                ChatMessage(
+                    from: other,
+                    content: .text("Hi"),
+                    timestamp: Date(timeIntervalSince1970: 1680307200)
                 )
             )
             ChatBubble(
-                participant: me,
-                display: .text(
-                    "What's up?",
-                    time: Date(timeIntervalSince1970: 1680308700)
+                ChatMessage(
+                    from: me,
+                    content: .text("What's up?"),
+                    timestamp: Date(timeIntervalSince1970: 1680308700)
                 )
             )
             ChatBubble(
-                participant: other,
-                display: .loading
+                ChatMessage(
+                    from: other,
+                    content: .typingIndicator
+                )
             )
         }.padding()
     }
