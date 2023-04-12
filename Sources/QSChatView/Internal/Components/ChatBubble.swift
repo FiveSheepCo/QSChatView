@@ -49,7 +49,7 @@ struct ChatBubble: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
                 .background(.thinMaterial)
-                .cornerRadius(20)
+                .cornerRadius(10)
         }
     }
     

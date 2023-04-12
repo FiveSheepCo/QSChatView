@@ -7,8 +7,13 @@
 
 import SwiftUI
 
+/// An animated typing indicator.
+///
+/// - Note: The default values are well-optimized.
 struct TypingIndicator: View {
-    let timeInterval: TimeInterval = 0.05
+    let timeInterval: TimeInterval = 0.2
+    let offsetChangePerTimeStep: Double = 1.0
+    
     let heightMultiplier: Double = 1.5
     let innerSpacing: Double = 7.5
     
@@ -30,8 +35,8 @@ struct TypingIndicator: View {
                 withTimeInterval: timeInterval,
                 repeats: true
             ) { _ in
-                withAnimation() {
-                    offset += 0.25
+                withAnimation(.linear(duration: timeInterval)) {
+                    offset += offsetChangePerTimeStep
                 }
             }
         }
