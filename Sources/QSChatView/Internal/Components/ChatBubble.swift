@@ -9,23 +9,22 @@ import SwiftUI
 
 struct ChatBubble: View {
     var message: ChatMessage
+    var edgeDistance: Double
     
-    init(_ message: ChatMessage) {
+    init(_ message: ChatMessage, edgeDistance: Double) {
         self.message = message
+        self.edgeDistance = edgeDistance
     }
     
     /// Raw chat content based on ``ChatBubbleDisplay``.
     @ViewBuilder private var rawContent: some View {
         switch message.content {
         case .text(let content):
-            HStack(alignment: .center, spacing: 15) {
+            HStack(alignment: .bottom, spacing: 15) {
                 Text(content)
-                VStack {
-                    Spacer()
-                    Text(message.displayTimeStamp)
-                        .font(.footnote)
-                        .opacity(0.5)
-                }
+                Text(message.displayTimeStamp)
+                    .font(.footnote)
+                    .opacity(0.5)
             }.fixedSize(horizontal: false, vertical: true)
         case .image(let image):
             VStack {
@@ -67,9 +66,9 @@ struct ChatBubble: View {
         HStack(alignment: .center, spacing: 0) {
             if (message.participant.role.showOnLeftSide) {
                 styledContent
-                Spacer()
+                Spacer(minLength: edgeDistance)
             } else {
-                Spacer()
+                Spacer(minLength: edgeDistance)
                 styledContent
             }
         }
@@ -107,20 +106,23 @@ struct ChatBubble_Previews: PreviewProvider {
                     from: other,
                     content: .text("Hi"),
                     timestamp: Date(timeIntervalSince1970: 1680307200)
-                )
+                ),
+                edgeDistance: 50
             )
             ChatBubble(
                 ChatMessage(
                     from: me,
-                    content: .text("What's up?"),
+                    content: .text("What's up? Long text to test wrapping"),
                     timestamp: Date(timeIntervalSince1970: 1680308700)
-                )
+                ),
+                edgeDistance: 50
             )
             ChatBubble(
                 ChatMessage(
                     from: other,
                     content: .typingIndicator
-                )
+                ),
+                edgeDistance: 50
             )
         }.padding()
     }

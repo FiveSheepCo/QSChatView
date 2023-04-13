@@ -16,9 +16,13 @@ public struct QSChatView: View {
             ScrollViewReader { scrollView in
                 ScrollView(.vertical) {
                     ForEach(controller.messages) { message in
-                        ChatBubble(message)
-                            .animation(.default, value: message)
-                            .transition(chatBubbleTransition)
+                        ChatBubble(
+                            message,
+                            edgeDistance: 50
+                        )
+                        .animation(.default, value: message)
+                        .transition(chatBubbleTransition)
+                        Spacer(minLength: 15)
                     }
                     .animation(.default, value: controller.messages)
                 }
@@ -38,8 +42,8 @@ public struct QSChatView: View {
 struct QSChatView_Previews: PreviewProvider {
     static var timer: Timer? = nil
     
-    static var previews: some View {
-        let dummyConversation = [
+    static var dummyConversation: [String] {
+        [
             "Hey! How's your day going?",
             "Pretty good, just got back from work. How about you?",
             "Just finished a workout, feeling pumped! 💪",
@@ -61,22 +65,25 @@ struct QSChatView_Previews: PreviewProvider {
             "Thanks, I will! Catch you later! 👋",
             "Bye! Enjoy the movie! 🍿",
         ]
+    }
+    
+    static var previews: some View {
         var offset = 0
         let chatter = ChatParticipantBuilder(as: .chatter).build()
-        let chattee = ChatParticipantBuilder(as: .chattee).build()
+        let chattee = ChatParticipantBuilder(as: .chattee).withAvatarImage(Image(systemName: "person.crop.circle")).build()
         let controller = ChatController()
         timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true, block: { timer in
+        timer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true, block: { timer in
             if offset == dummyConversation.count {
                 timer.invalidate()
                 return
             }
             DispatchQueue.main.async {
-                offset += 1
                 let participant = offset % 2 == 0 ? chattee : chatter
                 let content = ChatMessageContent.text(dummyConversation[offset])
                 let message = ChatMessage(from: participant, content: content)
                 controller.messages.append(message)
+                offset += 1
             }
         })
         return QSChatView(controller: controller)
