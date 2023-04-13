@@ -20,7 +20,6 @@ public struct QSChatView: View {
                             message,
                             edgeDistance: 50
                         )
-                        .animation(.default, value: message)
                         .transition(chatBubbleTransition)
                         Spacer(minLength: 15)
                     }
@@ -71,21 +70,29 @@ struct QSChatView_Previews: PreviewProvider {
         var offset = 0
         let chatter = ChatParticipantBuilder(as: .chatter).build()
         let chattee = ChatParticipantBuilder(as: .chattee).withAvatarImage(Image(systemName: "person.crop.circle")).build()
-        let controller = ChatController()
+        let controller = ChatController(with: [
+            .init(from: chatter, content: .image(Image(systemName: "hand.thumbsup.fill")))
+        ])
+        var startTimestamp: TimeInterval = 1681429800 - 60 * 60 * 2
         timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true, block: { timer in
+        timer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { timer in
             if offset == dummyConversation.count {
                 timer.invalidate()
                 return
             }
             DispatchQueue.main.async {
                 let participant = offset % 2 == 0 ? chattee : chatter
+                let promise = controller.sendPromise(from: participant)
                 let content = ChatMessageContent.text(dummyConversation[offset])
-                let message = ChatMessage(from: participant, content: content)
-                controller.messages.append(message)
+                Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
+                    DispatchQueue.main.async {
+                        controller.fulfill(promise, withContent: content, timestamp: Date(timeIntervalSince1970: startTimestamp))
+                        startTimestamp += 60 * 2
+                    }
+                }
                 offset += 1
             }
-        })
+        }
         return QSChatView(controller: controller)
             .padding()
     }

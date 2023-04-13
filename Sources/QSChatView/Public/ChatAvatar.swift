@@ -10,6 +10,7 @@ import SwiftUI
 
 /// The avatar of a chat participant.
 public enum ChatAvatar {
+    
     /// An image avatar.
     ///
     /// You should use this whenever possible.
@@ -19,9 +20,12 @@ public enum ChatAvatar {
     ///
     /// Supports any view as avatar. Only use this if you have to.
     case any(AnyView)
+}
+
+extension ChatAvatar {
     
     /// Get the underlying `View`.
-    @ViewBuilder internal var view: some View {
+    @ViewBuilder var view: some View {
         switch self {
         case .image(let image):
             image

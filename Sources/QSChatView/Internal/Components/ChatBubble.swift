@@ -16,21 +16,56 @@ struct ChatBubble: View {
         self.edgeDistance = edgeDistance
     }
     
+    #if os(iOS)
+    var timestampColor: UIColor {
+        UIColor.label.withAlphaComponent(0.5)
+    }
+    #elseif os(macOS)
+    var timestampColor: NSColor {
+        NSColor.labelColor.withAlphaComponent(0.5)
+    }
+    #endif
+    
+    private var timestampStr: AttributedString {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .right
+        paragraphStyle.lineBreakMode = .byWordWrapping
+        var str = AttributedString(stringLiteral: message.displayTimeStamp)
+        str.foregroundColor = timestampColor
+        str.paragraphStyle = paragraphStyle
+        str.font = .footnote
+        return str
+    }
+    
+    private var showTimestampOnSameLine: Bool {
+        message.content.isText
+        && message.content.textContent?.count ?? 0 < 25
+    }
+    
     /// Raw chat content based on ``ChatBubbleDisplay``.
     @ViewBuilder private var rawContent: some View {
         switch message.content {
         case .text(let content):
-            HStack(alignment: .bottom, spacing: 15) {
-                Text(content)
-                Text(message.displayTimeStamp)
-                    .font(.footnote)
-                    .opacity(0.5)
-            }.fixedSize(horizontal: false, vertical: true)
+            if showTimestampOnSameLine {
+                HStack(alignment: .bottom) {
+                    Text(content)
+                    Text(timestampStr)
+                }
+            } else {
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text(content)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(timestampStr)
+                }
+            }
         case .image(let image):
-            VStack {
+            VStack(alignment: .trailing, spacing: 4) {
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .cornerRadius(5)
+                    .padding()
+                Text(timestampStr)
             }
         case .typingIndicator:
             HStack(alignment: .center, spacing: 15) {
@@ -113,6 +148,22 @@ struct ChatBubble_Previews: PreviewProvider {
                 ChatMessage(
                     from: me,
                     content: .text("What's up? Long text to test wrapping"),
+                    timestamp: Date(timeIntervalSince1970: 1680308700)
+                ),
+                edgeDistance: 50
+            )
+            ChatBubble(
+                ChatMessage(
+                    from: me,
+                    content: .text("Short text"),
+                    timestamp: Date(timeIntervalSince1970: 1680308700)
+                ),
+                edgeDistance: 50
+            )
+            ChatBubble(
+                ChatMessage(
+                    from: me,
+                    content: .image(Image(systemName: "hand.thumbsup.fill")),
                     timestamp: Date(timeIntervalSince1970: 1680308700)
                 ),
                 edgeDistance: 50

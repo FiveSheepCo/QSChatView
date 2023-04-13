@@ -6,7 +6,7 @@
 //
 
 import XCTest
-import QSChatView
+@testable import QSChatView
 
 fileprivate extension ChatParticipant {
     static var mockChatter: ChatParticipant {

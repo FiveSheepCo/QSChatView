@@ -43,9 +43,9 @@ public class ChatParticipantBuilder {
     /// Build the ``ChatParticipant``.
     public func build() -> ChatParticipant {
         ChatParticipant(
+            role: role,
             name: name,
-            avatar: avatar,
-            role: role
+            avatar: avatar
         )
     }
 }
