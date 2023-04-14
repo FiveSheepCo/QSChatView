@@ -1,7 +1,16 @@
 import SwiftUI
+import Combine
 
 public struct QSChatView: View {
-    @StateObject var controller: ChatController
+    @StateObject private var controller: ChatController
+    @StateObject private var scrollView = ScrollViewData()
+    
+    @State private var lastSeenMessageId: UUID?
+    @State private var unseenMessageCount = 0
+    
+    public init(_ controller: ChatController?) {
+        self._controller = StateObject(wrappedValue: controller ?? ChatController())
+    }
     
     var chatBubbleTransition: AnyTransition {
         if #available(iOS 16.0, macOS 13.0, *) {
@@ -11,26 +20,94 @@ public struct QSChatView: View {
         }
     }
     
+    var scrollIndicatorTransition: AnyTransition {
+        if #available(iOS 16.0, macOS 13.0, *) {
+            return AnyTransition.push(from: .bottom)
+        } else {
+            return AnyTransition.opacity
+        }
+    }
+    
+    func updateUnseenMessages(_ messages: [ChatMessage]) {
+        if scrollView.isScrolledToBottom {
+            unseenMessageCount = 0
+        } else if let lastSeenMessageIndex = messages.firstIndex(where: { $0.id == lastSeenMessageId }) {
+            let lastIndex = messages.endIndex - 1
+            unseenMessageCount = lastIndex - lastSeenMessageIndex
+        }
+    }
+    
+    func adjustScrollPosition(_ messages: [ChatMessage]) {
+        // Only scroll if at least one message exists in the view,
+        // and the scroll view is currently scrolled to the bottom.
+        guard let lastMessage = messages.last else { return }
+        guard scrollView.isScrolledToBottom else { return }
+        scrollView.scrollTo(lastMessage.id, anchor: .bottom)
+    }
+    
     public var body: some View {
         VStack {
-            ScrollViewReader { scrollView in
-                ScrollView(.vertical) {
-                    ForEach(controller.messages) { message in
-                        ChatBubble(
-                            message,
-                            edgeDistance: 50
-                        )
-                        .transition(chatBubbleTransition)
-                        Spacer(minLength: 15)
+            ZStack(alignment: .bottomTrailing) {
+                
+                // Chat View
+                BetterScrollView(data: scrollView) {
+                    LazyVStack(spacing: 15) {
+                        ForEach(controller.messages) { message in
+                            ChatBubble(
+                                message,
+                                edgeDistance: 50
+                            )
+                            .transition(chatBubbleTransition)
+                        }
+                        .animation(.easeOut(duration: 0.15), value: controller.messages)
                     }
-                    .animation(.default, value: controller.messages)
+                    .onChange(of: scrollView.isScrolledToBottom, perform: { newValue in
+                        guard !newValue else { return }
+                        guard let lastMessage = controller.messages.last else { return }
+                        lastSeenMessageId = lastMessage.id
+                    })
+                    .onChange(of: controller.messages, perform: { newValue in
+                        withAnimation {
+                            updateUnseenMessages(newValue)
+                            adjustScrollPosition(newValue)
+                        }
+                    })
                 }
-                .onChange(of: controller.messages, perform: { newValue in
-                    guard let lastMessage = newValue.last else { return }
-                    withAnimation {
-                        scrollView.scrollTo(lastMessage.id, anchor: .bottom)
+                
+                // ScrollToBottom/UnseenMessages Indicator
+                ZStack {
+                    if !scrollView.isScrolledToBottom {
+                        HStack(alignment: .center) {
+                            if unseenMessageCount > 0 {
+                                ZStack(alignment: .center) {
+                                    Circle()
+                                        .foregroundColor(.accentColor)
+                                        .opacity(0.75)
+                                    Text("\(unseenMessageCount)")
+                                }
+                                .frame(width: 24, height: 24)
+                            }
+                            Image(systemName: "chevron.down")
+                        }
+                        .padding(10)
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(10)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            guard let lastMessage = controller.messages.last else { return }
+                            scrollView.scrollTo(lastMessage.id, anchor: .bottom)
+                            unseenMessageCount = 0
+                        }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.primary.opacity(0.1), lineWidth: 1)
+                        )
+                        .shadow(radius: 5, x: 0, y: 10)
                     }
-                })
+                }
+                .offset(x: -10, y: -20)
+                .transition(scrollIndicatorTransition)
+                .animation(.easeInOut(duration: 0.25), value: unseenMessageCount)
             }
             Spacer()
             ChatTextField($controller.textInputContent)
@@ -66,6 +143,8 @@ struct QSChatView_Previews: PreviewProvider {
         ]
     }
     
+    // This is quite the convoluted preview setup, but it's needed
+    // in order to test various aspects of the chat behavior.
     static var previews: some View {
         var offset = 0
         let chatter = ChatParticipantBuilder(as: .chatter).build()
@@ -93,7 +172,7 @@ struct QSChatView_Previews: PreviewProvider {
                 offset += 1
             }
         }
-        return QSChatView(controller: controller)
+        return QSChatView(controller)
             .padding()
     }
 }
