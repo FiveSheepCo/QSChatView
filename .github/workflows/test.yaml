@@ -23,18 +23,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Test
-        run: xcodebuild -scheme QSChatView test -destination "platform=iOS Simulator,name=iPhone 14 Pro,OS=latest"
+        run: xcodebuild -scheme QSChatView test -destination "platform=iOS Simulator,name=iPhone 14 Pro,OS=latest" | xcpretty
   macOS:
     name: Test macOS
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
       - name: Test
-        run: xcodebuild -scheme QSChatView test -destination "platform=macOS"
+        run: xcodebuild -scheme QSChatView test -destination "platform=macOS" | xcpretty
   macOS_Catalyst:
     name: Test macOS (Catalyst)
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
       - name: Test
-        run: xcodebuild -scheme QSChatView test -destination "platform=macOS,variant=Mac Catalyst"
+        run: xcodebuild -scheme QSChatView test -destination "platform=macOS,variant=Mac Catalyst" | xcpretty
