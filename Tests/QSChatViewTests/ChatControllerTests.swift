@@ -29,6 +29,60 @@ final class ChatControllerTests: XCTestCase {
             ChatMessage(from: participant, content: .text("Foo")),
             ChatMessage(from: participant, content: .text("Bar")),
         ]
+        
         let _ = ChatController(with: messages)
+    }
+    
+    func testSend() throws {
+        let participant = ChatParticipant.mockChatter
+        let message = ChatMessage(from: participant, content: .text("Foo"))
+        let controller = ChatController()
+        
+        controller.send(message)
+        
+        let firstMessage = controller.messages.first
+        XCTAssertNotNil(firstMessage)
+        XCTAssertEqual(firstMessage!, message)
+    }
+    
+    func testSendPromiseFulfill() throws {
+        let participant = ChatParticipant.mockChatter
+        let controller = ChatController()
+        
+        let promise = controller.sendPromise(from: participant)
+        
+        ({
+            let firstMessage = controller.messages.first
+            XCTAssertNotNil(firstMessage)
+            XCTAssertEqual(firstMessage!.content, .typingIndicator)
+        }())
+        
+        promise.fulfill(withContent: .text("Foo"))
+        
+        ({
+            let firstMessage = controller.messages.first
+            XCTAssertNotNil(firstMessage)
+            XCTAssertEqual(firstMessage!.content, .text("Foo"))
+        }())
+    }
+    
+    func testSendPromiseReject() throws {
+        let participant = ChatParticipant.mockChatter
+        let controller = ChatController()
+        
+        let promise = controller.sendPromise(from: participant)
+        
+        ({
+            let firstMessage = controller.messages.first
+            XCTAssertNotNil(firstMessage)
+            XCTAssertEqual(firstMessage!.content, .typingIndicator)
+        }())
+        
+        promise.reject()
+        
+        ({
+            let firstMessage = controller.messages.first
+            XCTAssertNil(firstMessage)
+        }())
     }
 }

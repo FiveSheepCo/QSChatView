@@ -23,7 +23,17 @@ public struct ChatMessagePromise {
     
     // MARK: - Public Interface
     
+    /// Fulfill the message promise.
+    ///
+    /// Replaces the loading indicator of the promised message with its final content.
     public func fulfill(withContent content: ChatMessageContent, timestamp: Date? = nil) {
         controller.fulfill(self, withContent: content, timestamp: timestamp)
+    }
+    
+    /// Reject the message promise.
+    ///
+    /// Removes the promised message from the chat.
+    public func reject() {
+        controller.reject(self)
     }
 }

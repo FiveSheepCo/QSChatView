@@ -21,8 +21,14 @@ public class ChatController: ObservableObject {
         withContent content: ChatMessageContent,
         timestamp: Date? = nil
     ) {
-        guard let messageId = messages.firstIndex(where: { $0.id == promise.messageId }) else { return }
-        messages[messageId].replaceContent(with: content, timestamp: timestamp)
+        guard let messageIndex = messages.firstIndex(where: { $0.id == promise.messageId }) else { return }
+        messages[messageIndex].replaceContent(with: content, timestamp: timestamp)
+    }
+    
+    /// Reject a ``ChatMessagePromise``, removing it from the chat.
+    func reject(_ promise: ChatMessagePromise) {
+        guard let messageIndex = messages.firstIndex(where: { $0.id == promise.messageId }) else { return }
+        messages.remove(at: messageIndex)
     }
     
     // MARK: - Public Interface
