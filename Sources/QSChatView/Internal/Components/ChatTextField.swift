@@ -30,7 +30,7 @@ struct ChatTextField: View {
     }
     
     @ViewBuilder var compatibleTextField: some View {
-        if #available(iOS 16.0, *) {
+        if #available(iOS 16.0, macOS 13.0, *) {
             innerTextField
                 .textFieldStyle(textFieldStyle)
                 .scrollDismissesKeyboard(.interactively)

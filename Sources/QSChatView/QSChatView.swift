@@ -4,7 +4,7 @@ public struct QSChatView: View {
     @StateObject var controller: ChatController
     
     var chatBubbleTransition: AnyTransition {
-        if #available(iOS 16.0, *) {
+        if #available(iOS 16.0, macOS 13.0, *) {
             return AnyTransition.push(from: .bottom)
         } else {
             return AnyTransition.opacity
