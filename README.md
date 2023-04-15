@@ -5,3 +5,6 @@
 # QSChatView
 > A beautiful data-driven chat view for iOS and macOS.
 
+|   |   |
+| - | - |
+| ![QSChatView Screenshot 1](./Screenshots/Chat01@0.5x.png) | ![QSChatView Screenshot 2](./Screenshots/Chat02@0.5x.png) |
