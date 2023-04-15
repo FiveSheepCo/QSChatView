@@ -16,8 +16,8 @@ public class ChatParticipantBuilder {
     private var name: String?
     private var avatar: ChatAvatar?
     
-    public init(as role: ChatParticipantRole) {
-        self.role = role
+    public init() {
+        self.role = .chattee
     }
     
     /// Assign a name to the participant.
