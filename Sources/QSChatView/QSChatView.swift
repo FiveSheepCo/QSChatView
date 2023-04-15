@@ -8,8 +8,14 @@ public struct QSChatView: View {
     @State private var lastSeenMessageId: UUID?
     @State private var unseenMessageCount = 0
     
-    public init(_ controller: ChatController?) {
+    let onMessageSent: (String) -> Void
+    
+    public init(
+        _ controller: ChatController?,
+        onMessageSent: @escaping (String) -> Void = {_ in}
+    ) {
         self._controller = StateObject(wrappedValue: controller ?? ChatController())
+        self.onMessageSent = onMessageSent
     }
     
     var chatBubbleTransition: AnyTransition {
@@ -118,10 +124,11 @@ public struct QSChatView: View {
             
             if controller.config.showTextField {
                 ChatTextField() { content in
+                    onMessageSent(content)
                     controller.send(
                         ChatMessage(
                             from: .defaultChatter,
-                            content: content,
+                            content: .text(content),
                             timestamp: Date()
                         )
                     )

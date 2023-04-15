@@ -9,7 +9,7 @@ import SwiftUI
 
 /// A stylized `TextField` for chat input.
 struct ChatTextField: View {
-    typealias OnSubmitHandler = (ChatMessageContent) -> Void
+    typealias OnSubmitHandler = (String) -> Void
     
     private let prompt: String
     private let onSubmit: OnSubmitHandler
@@ -29,7 +29,9 @@ struct ChatTextField: View {
     }
     
     func onSubmitInner() {
-        onSubmit(.text(text))
+        guard !text.isEmpty else { return }
+        
+        onSubmit(text)
         text = ""
     }
     
