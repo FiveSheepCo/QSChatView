@@ -12,7 +12,11 @@ import SwiftUI
 ///
 /// You should use ``ChatParticipantBuilder`` to instantiate this.
 public class ChatParticipant: Identifiable, Equatable {
+    @available(*, deprecated, message: "Use ChatParticipant.me instead.")
     public static let defaultChatter = ChatParticipant(role: .chatter)
+    
+    /// A chat participant representing the current user.
+    public static let me = ChatParticipant(role: .chatter)
     
     let name: String?
     let avatar: ChatAvatar?

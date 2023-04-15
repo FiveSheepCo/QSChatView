@@ -124,14 +124,8 @@ struct ChatBubble: View {
 }
 
 struct ChatBubble_Previews: PreviewProvider {
-    static var me: ChatParticipant {
-        ChatParticipantBuilder(as: .chatter)
-            .withName("Splitty")
-            .build()
-    }
-    
     static var other: ChatParticipant {
-        ChatParticipantBuilder(as: .chattee)
+        ChatParticipantBuilder()
             .withName("Eel")
             .withAvatarView(
                 Image(systemName: "person.crop.circle.fill")
@@ -162,7 +156,7 @@ struct ChatBubble_Previews: PreviewProvider {
             )
             ChatBubble(
                 ChatMessage(
-                    from: me,
+                    from: .me,
                     content: .text("What's up? Long text to test wrapping"),
                     timestamp: Date(timeIntervalSince1970: 1680308700)
                 ),
@@ -171,7 +165,7 @@ struct ChatBubble_Previews: PreviewProvider {
             )
             ChatBubble(
                 ChatMessage(
-                    from: me,
+                    from: .me,
                     content: .text("Short text"),
                     timestamp: Date(timeIntervalSince1970: 1680308700)
                 ),
@@ -180,7 +174,7 @@ struct ChatBubble_Previews: PreviewProvider {
             )
             ChatBubble(
                 ChatMessage(
-                    from: me,
+                    from: .me,
                     content: .image(Image(systemName: "hand.thumbsup.fill")),
                     timestamp: Date(timeIntervalSince1970: 1680308700)
                 ),

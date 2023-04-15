@@ -10,11 +10,11 @@ import XCTest
 
 fileprivate extension ChatParticipant {
     static var mockChatter: ChatParticipant {
-        ChatParticipantBuilder(as: .chatter).withName("Alice").build()
+        ChatParticipant.me
     }
     
     static var mockChattee: ChatParticipant {
-        ChatParticipantBuilder(as: .chattee).withName("Bob").build()
+        ChatParticipantBuilder().withName("Bob").build()
     }
 }
 

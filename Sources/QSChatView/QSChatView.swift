@@ -127,7 +127,7 @@ public struct QSChatView: View {
                     onMessageSent(content)
                     controller.send(
                         ChatMessage(
-                            from: .defaultChatter,
+                            from: .me,
                             content: .text(content),
                             timestamp: Date()
                         )
@@ -170,8 +170,8 @@ struct QSChatView_Previews: PreviewProvider {
     // in order to test various aspects of the chat behavior.
     static var previews: some View {
         var offset = 0
-        let chatter = ChatParticipantBuilder(as: .chatter).build()
-        let chattee = ChatParticipantBuilder(as: .chattee).withAvatarImage(Image(systemName: "person.crop.circle")).build()
+        let chatter = ChatParticipant.me
+        let chattee = ChatParticipantBuilder().withAvatarImage(Image(systemName: "person.crop.circle")).build()
         let controller = ChatController(messages: [
             .init(from: chatter, content: .image(Image(systemName: "hand.thumbsup.fill")))
         ])
