@@ -17,7 +17,7 @@ public struct ChatMessage: Equatable, Identifiable {
     
     mutating func replaceContent(with content: ChatMessageContent, timestamp: Date? = nil) {
         self.content = content
-        self.timestamp = timestamp ?? self.timestamp
+        self.timestamp = timestamp ?? Date()
     }
     
     var displayTimeStamp: String {
