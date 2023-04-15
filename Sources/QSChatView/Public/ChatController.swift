@@ -12,6 +12,7 @@ import SwiftUI
 public class ChatController: ObservableObject {
     @Published var textInputContent: String = ""
     @Published var messages: [ChatMessage] = []
+    @Published var config: ChatConfig
     
     // MARK: - Internal Interface
     
@@ -34,8 +35,9 @@ public class ChatController: ObservableObject {
     // MARK: - Public Interface
     
     /// Create a new instance of ``ChatController``
-    public init(with messages: [ChatMessage] = []) {
+    public init(messages: [ChatMessage] = [], config: ChatConfig? = nil) {
         self.messages = messages
+        self.config = config ?? .default
     }
     
     /// Send a ``ChatMessage``
@@ -45,7 +47,7 @@ public class ChatController: ObservableObject {
     
     /// Send a temporary ``ChatMessage`` with a loading indicator.
     ///
-    /// Use ``ChatController/fulfill(_:withContent:timestamp:)`` to replace the message contents later.
+    /// Use ``ChatMessagePromise/fulfill(withContent:timestamp:)`` to replace the message contents later.
     public func sendPromise(from participant: ChatParticipant) -> ChatMessagePromise {
         let message = ChatMessage(from: participant, content: .typingIndicator)
         self.send(message)

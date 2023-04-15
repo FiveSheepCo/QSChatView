@@ -12,6 +12,8 @@ import SwiftUI
 ///
 /// You should use ``ChatParticipantBuilder`` to instantiate this.
 public class ChatParticipant: Identifiable, Equatable {
+    public static let defaultChatter = ChatParticipant(role: .chatter)
+    
     let name: String?
     let avatar: ChatAvatar?
     let role: ChatParticipantRole

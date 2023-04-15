@@ -11,9 +11,12 @@ struct ChatBubble: View {
     var message: ChatMessage
     var edgeDistance: Double
     
-    init(_ message: ChatMessage, edgeDistance: Double) {
+    @ObservedObject var config: ChatConfig
+    
+    init(_ message: ChatMessage, edgeDistance: Double, config: ChatConfig) {
         self.message = message
         self.edgeDistance = edgeDistance
+        self.config = config
     }
     
     #if os(iOS)
@@ -46,17 +49,21 @@ struct ChatBubble: View {
     @ViewBuilder private var rawContent: some View {
         switch message.content {
         case .text(let content):
-            if showTimestampOnSameLine {
-                HStack(alignment: .bottom) {
-                    Text(content)
-                    Text(timestampStr)
+            if config.showTimestamps {
+                if showTimestampOnSameLine {
+                    HStack(alignment: .bottom) {
+                        Text(content)
+                        Text(timestampStr)
+                    }
+                } else {
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text(content)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(timestampStr)
+                    }
                 }
             } else {
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text(content)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Text(timestampStr)
-                }
+                Text(content)
             }
         case .image(let image):
             VStack(alignment: .trailing, spacing: 4) {
@@ -65,7 +72,9 @@ struct ChatBubble: View {
                     .aspectRatio(contentMode: .fit)
                     .cornerRadius(5)
                     .padding()
-                Text(timestampStr)
+                if config.showTimestamps {
+                    Text(timestampStr)
+                }
             }
         case .typingIndicator:
             HStack(alignment: .center, spacing: 15) {
@@ -134,6 +143,12 @@ struct ChatBubble_Previews: PreviewProvider {
             .build()
     }
     
+    static var config: ChatConfig {
+        let config = ChatConfig.default
+        // config.showTimestamps = false
+        return config
+    }
+    
     static var previews: some View {
         VStack {
             ChatBubble(
@@ -142,7 +157,8 @@ struct ChatBubble_Previews: PreviewProvider {
                     content: .text("Hi"),
                     timestamp: Date(timeIntervalSince1970: 1680307200)
                 ),
-                edgeDistance: 50
+                edgeDistance: 50,
+                config: config
             )
             ChatBubble(
                 ChatMessage(
@@ -150,7 +166,8 @@ struct ChatBubble_Previews: PreviewProvider {
                     content: .text("What's up? Long text to test wrapping"),
                     timestamp: Date(timeIntervalSince1970: 1680308700)
                 ),
-                edgeDistance: 50
+                edgeDistance: 50,
+                config: config
             )
             ChatBubble(
                 ChatMessage(
@@ -158,7 +175,8 @@ struct ChatBubble_Previews: PreviewProvider {
                     content: .text("Short text"),
                     timestamp: Date(timeIntervalSince1970: 1680308700)
                 ),
-                edgeDistance: 50
+                edgeDistance: 50,
+                config: config
             )
             ChatBubble(
                 ChatMessage(
@@ -166,14 +184,16 @@ struct ChatBubble_Previews: PreviewProvider {
                     content: .image(Image(systemName: "hand.thumbsup.fill")),
                     timestamp: Date(timeIntervalSince1970: 1680308700)
                 ),
-                edgeDistance: 50
+                edgeDistance: 50,
+                config: config
             )
             ChatBubble(
                 ChatMessage(
                     from: other,
                     content: .typingIndicator
                 ),
-                edgeDistance: 50
+                edgeDistance: 50,
+                config: config
             )
         }.padding()
     }

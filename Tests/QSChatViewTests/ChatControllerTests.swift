@@ -30,7 +30,7 @@ final class ChatControllerTests: XCTestCase {
             ChatMessage(from: participant, content: .text("Bar")),
         ]
         
-        let _ = ChatController(with: messages)
+        let _ = ChatController(messages: messages)
     }
     
     func testSend() throws {

@@ -38,11 +38,17 @@ public struct QSChatView: View {
     }
     
     func adjustScrollPosition(_ messages: [ChatMessage]) {
-        // Only scroll if at least one message exists in the view,
-        // and the scroll view is currently scrolled to the bottom.
         guard let lastMessage = messages.last else { return }
-        guard scrollView.isScrolledToBottom else { return }
-        scrollView.scrollTo(lastMessage.id, anchor: .bottom)
+        
+        switch controller.config.scrollingBehavior {
+        case .always:
+            scrollView.scrollTo(lastMessage.id, anchor: .bottom)
+            break
+        case .adaptive where scrollView.isScrolledToBottom:
+            scrollView.scrollTo(lastMessage.id, anchor: .bottom)
+        default:
+            break
+        }
     }
     
     public var body: some View {
@@ -55,7 +61,8 @@ public struct QSChatView: View {
                         ForEach(controller.messages) { message in
                             ChatBubble(
                                 message,
-                                edgeDistance: 50
+                                edgeDistance: 50,
+                                config: controller.config
                             )
                             .transition(chatBubbleTransition)
                         }
@@ -81,8 +88,7 @@ public struct QSChatView: View {
                             if unseenMessageCount > 0 {
                                 ZStack(alignment: .center) {
                                     Circle()
-                                        .foregroundColor(.accentColor)
-                                        .opacity(0.75)
+                                        .foregroundColor(.secondary)
                                     Text("\(unseenMessageCount)")
                                 }
                                 .frame(width: 24, height: 24)
@@ -100,17 +106,27 @@ public struct QSChatView: View {
                         }
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.primary.opacity(0.1), lineWidth: 1)
+                                .stroke(Color.primary.opacity(0.05), lineWidth: 1)
                         )
-                        .shadow(radius: 5, x: 0, y: 10)
+                        .shadow(radius: 5, x: 0, y: 2)
                     }
                 }
                 .offset(x: -10, y: -20)
                 .transition(scrollIndicatorTransition)
                 .animation(.easeInOut(duration: 0.25), value: unseenMessageCount)
             }
-            Spacer()
-            ChatTextField($controller.textInputContent)
+            
+            if controller.config.showTextField {
+                ChatTextField() { content in
+                    controller.send(
+                        ChatMessage(
+                            from: .defaultChatter,
+                            content: content,
+                            timestamp: Date()
+                        )
+                    )
+                }
+            }
         }
     }
 }
@@ -149,7 +165,7 @@ struct QSChatView_Previews: PreviewProvider {
         var offset = 0
         let chatter = ChatParticipantBuilder(as: .chatter).build()
         let chattee = ChatParticipantBuilder(as: .chattee).withAvatarImage(Image(systemName: "person.crop.circle")).build()
-        let controller = ChatController(with: [
+        let controller = ChatController(messages: [
             .init(from: chatter, content: .image(Image(systemName: "hand.thumbsup.fill")))
         ])
         var startTimestamp: TimeInterval = 1681429800 - 60 * 60 * 2

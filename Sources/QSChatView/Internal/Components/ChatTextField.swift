@@ -9,12 +9,15 @@ import SwiftUI
 
 /// A stylized `TextField` for chat input.
 struct ChatTextField: View {
-    private let prompt: String
-    @Binding private var text: String
+    typealias OnSubmitHandler = (ChatMessageContent) -> Void
     
-    init(_ text: Binding<String>, prompt: String = "") {
-        self._text = text
+    private let prompt: String
+    private let onSubmit: OnSubmitHandler
+    @State private var text: String = ""
+    
+    init(prompt: String = "", onSubmit: @escaping OnSubmitHandler = { _ in }) {
         self.prompt = prompt
+        self.onSubmit = onSubmit
     }
     
     var promptView: Text {
@@ -23,6 +26,11 @@ struct ChatTextField: View {
     
     var textFieldStyle: ChatTextFieldStyle<Material> {
         ChatTextFieldStyle(background: .thinMaterial)
+    }
+    
+    func onSubmitInner() {
+        onSubmit(.text(text))
+        text = ""
     }
     
     @ViewBuilder var innerTextField: some View {
@@ -44,21 +52,23 @@ struct ChatTextField: View {
         Image(systemName: "paperplane.circle.fill")
             .rotationEffect(.degrees(45))
             .font(.system(size: 26))
-            .foregroundColor(.accentColor)
+            .foregroundColor(.primary)
             .contentShape(Rectangle())
     }
     
     var body: some View {
         HStack {
             compatibleTextField
+                .onSubmit(onSubmitInner)
             sendButton
+                .onTapGesture(perform: onSubmitInner)
         }
     }
 }
 
 struct ChatTextField_Previews: PreviewProvider {
     static var previews: some View {
-        ChatTextField(.constant("Test"))
+        ChatTextField()
             .padding()
     }
 }
