@@ -26,7 +26,7 @@ public struct ChatMessagePromise {
     /// Fulfill the message promise.
     ///
     /// Replaces the loading indicator of the promised message with its final content.
-    public func fulfill(withContent content: ChatMessageContent, timestamp: Date? = nil) {
+    public func fulfill(withContent content: ChatMessageContent, timestamp: Date = Date()) {
         controller.fulfill(self, withContent: content, timestamp: timestamp)
     }
     

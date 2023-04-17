@@ -9,21 +9,16 @@ public struct QSChatView: View {
     @State private var unseenMessageCount = 0
     
     let onMessageSent: (String) -> Void
+    let onMessageDeleted: (ChatMessage) -> Void
     
     public init(
         _ controller: ChatController?,
-        onMessageSent: @escaping (String) -> Void = {_ in}
+        onMessageSent: @escaping (String) -> Void = {_ in},
+        onMessageDeleted: @escaping (ChatMessage) -> Void = {_ in}
     ) {
         self._controller = StateObject(wrappedValue: controller ?? ChatController())
         self.onMessageSent = onMessageSent
-    }
-    
-    var chatBubbleTransition: AnyTransition {
-        if #available(iOS 16.0, macOS 13.0, *) {
-            return AnyTransition.push(from: .bottom)
-        } else {
-            return AnyTransition.opacity
-        }
+        self.onMessageDeleted = onMessageDeleted
     }
     
     var scrollIndicatorTransition: AnyTransition {
@@ -64,15 +59,19 @@ public struct QSChatView: View {
                 // Chat View
                 BetterScrollView(data: scrollView) {
                     LazyVStack(spacing: 15) {
+                        
+                        // Render all messages as chat bubbles
                         ForEach(controller.messages) { message in
-                            ChatBubble(
-                                message,
-                                edgeDistance: 50,
-                                config: controller.config
+                            WrappedChatBubble(
+                                controller: controller,
+                                message: message,
+                                onMessageDeleted: onMessageDeleted
                             )
-                            .transition(chatBubbleTransition)
                         }
-                        .animation(.easeOut(duration: 0.15), value: controller.messages)
+                        .animation(
+                            .easeOut(duration: 0.15),
+                            value: controller.messages
+                        )
                     }
                     .onChange(of: scrollView.isScrolledToBottom, perform: { newValue in
                         guard !newValue else { return }

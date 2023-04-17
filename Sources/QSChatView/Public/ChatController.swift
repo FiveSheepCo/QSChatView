@@ -20,7 +20,7 @@ public class ChatController: ObservableObject {
     func fulfill(
         _ promise: ChatMessagePromise,
         withContent content: ChatMessageContent,
-        timestamp: Date? = nil
+        timestamp: Date = Date()
     ) {
         guard let messageIndex = messages.firstIndex(where: { $0.id == promise.messageId }) else { return }
         messages[messageIndex].replaceContent(with: content, timestamp: timestamp)
@@ -52,5 +52,15 @@ public class ChatController: ObservableObject {
         let message = ChatMessage(from: participant, content: .typingIndicator)
         self.send(message)
         return ChatMessagePromise(controller: self, messageId: message.id)
+    }
+    
+    /// Delete the message with the specified `id`.
+    public func delete(id: UUID) {
+        messages.removeAll(where: { $0.id == id })
+    }
+    
+    /// Delete the specified message.
+    public func delete(message: ChatMessage) {
+        delete(id: message.id)
     }
 }

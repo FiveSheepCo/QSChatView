@@ -18,10 +18,19 @@ public class ChatConfig: ObservableObject {
     /// Automatic chat scrolling behavior
     @Published public var scrollingBehavior: ChatScrollBehavior
     
-    init(showTimestamps: Bool, showTextField: Bool, scrollingBehavior: ChatScrollBehavior) {
+    /// Configure chat bubble context menu items
+    @Published public var contextMenuItems: Set<ChatContextMenuItem>
+    
+    init(
+        showTimestamps: Bool,
+        showTextField: Bool,
+        scrollingBehavior: ChatScrollBehavior,
+        contextMenuItems: Set<ChatContextMenuItem>
+    ) {
         self.showTimestamps = showTimestamps
         self.showTextField = showTextField
         self.scrollingBehavior = scrollingBehavior
+        self.contextMenuItems = [.deleteMessage]
     }
 }
 
@@ -30,7 +39,8 @@ extension ChatConfig {
         ChatConfig(
             showTimestamps: true,
             showTextField: true,
-            scrollingBehavior: .adaptive
+            scrollingBehavior: .adaptive,
+            contextMenuItems: [.deleteMessage]
         )
     }
 }

@@ -15,9 +15,9 @@ public struct ChatMessage: Equatable, Identifiable {
     
     // MARK: - Internal Interface
     
-    mutating func replaceContent(with content: ChatMessageContent, timestamp: Date? = nil) {
+    mutating func replaceContent(with content: ChatMessageContent, timestamp: Date = Date()) {
         self.content = content
-        self.timestamp = timestamp ?? Date()
+        self.timestamp = timestamp
     }
     
     var displayTimeStamp: String {

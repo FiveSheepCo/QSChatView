@@ -24,15 +24,16 @@ public class ChatParticipant: Identifiable, Equatable {
     
     // MARK: - Internal Interface
     
-    init(role: ChatParticipantRole, name: String? = nil, avatar: ChatAvatar? = nil) {
+    init(role: ChatParticipantRole, name: String? = nil, avatar: ChatAvatar? = nil, id: UUID = UUID()) {
         self.name = name
         self.avatar = avatar
         self.role = role
+        self.id = id
     }
     
     // MARK: - Identifiable
     
-    public let id: UUID = UUID()
+    public let id: UUID
     
     // MARK: - Equatable
     

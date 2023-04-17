@@ -58,20 +58,18 @@ class MyChatData: ObservableObject {
     @Published var chatPartner: ChatParticipant
 
     init() {
-        // Use default chat config as a starting point
-        let config = ChatConfig.default
+        // Build chat config.
+        // You can also use `ChatConfig.default` here.
+        let config = ChatConfigBuilder()
+            .showTextField()
+            .showTimestamps(false)
+            .withScrollingBehavior(.adaptive)
+            .build()
 
-        // Change settings to your liking
-        config.showTextField = true
-        config.showTimestamps = false
-        config.scrollingBehavior = .adaptive
-
-        /*
-         * In this example we specify a fixed set of initial messages.
-         *
-         * In a real-world application, you would probably load messages
-         * from a server or database, or restore them from a local cache.
-         */
+        // In this example we specify a fixed set of initial messages.
+        //
+        // In a real-world application, you would probably load messages
+        // from a server or database, or restore them from a local cache.
         let messages: [ChatMessage] = [
             ChatMessage(from: .me, content: .text("Hey John, are you there?"))
         ]
